@@ -2,6 +2,7 @@ using InterviewExam.Models;
 using InterviewExam.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +55,12 @@ namespace InterviewExam
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>{});
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
+            });
 
             app.UseSpa(spa =>
             {
@@ -62,7 +68,8 @@ namespace InterviewExam
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3001");
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+
                 }
             });
         }
@@ -77,7 +84,7 @@ namespace InterviewExam
             string containerName = configurationSection.GetSection("ContainerName").Value;
             string account = configurationSection.GetSection("Account").Value;
             string key = configurationSection.GetSection("Key").Value;
-            CosmosClient client = new CosmosClient(account, key);
+            CosmosClient client = new CosmosClient(account, key, new CosmosClientOptions() { ApplicationName = "CosmosDBDotnetQuickstart" });
             CosmosDbService cosmosDbService = new CosmosDbService(client, databaseName, containerName);
             DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
             await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
