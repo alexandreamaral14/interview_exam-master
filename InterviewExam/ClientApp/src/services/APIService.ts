@@ -3,7 +3,7 @@ import { Item } from "../models/Item";
 
 export default class APIService {
   static async GetStuff() {
-    const response = await Axios.post<Item>("/api/item");
+      const response = await Axios.get<Item>("/api/item/Get");
 
     return response.data;
   }
